@@ -1,3 +1,4 @@
+
 import hashlib
 import logging
 import os
@@ -16,7 +17,6 @@ if not logger.handlers:
         "%(asctime)s | %(levelname)-8s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
-
     fh = logging.FileHandler("logs/app.log", encoding="utf-8")
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(fmt)
@@ -42,8 +42,8 @@ PWD_RE   = re.compile(r"^[А-Яа-яЁё0-9!@#$%^&*()_\-+=]{7,}$")
 SPECIALS = r"!@#$%^&*()_\-+="
 
 
+
 def mask_password(pwd: str) -> str:
-    """Одинаковый пароль → одинаковый результат; разный → разный."""
     digest = hashlib.sha256(pwd.encode("utf-8")).hexdigest()[:10]
     return f"***{digest}"
 
@@ -79,12 +79,10 @@ def _validate_password(pwd: str) -> list[str]:
 
 
 def validate_registration(login: str, pwd: str, confirm: str) -> Tuple[bool, str]:
-
     logger.info(
         "Запрос: login=%r, pwd=%s, confirm=%s",
         login, mask_password(pwd), mask_password(confirm),
     )
-
     try:
         login_err = _validate_login(login)
         if login_err:
@@ -112,17 +110,31 @@ def validate_registration(login: str, pwd: str, confirm: str) -> Tuple[bool, str
 
 
 def main() -> None:
-    try:
-        login   = input("Логин: ").strip()
-        pwd     = input("Пароль: ").strip()
-        confirm = input("Подтверждение пароля: ").strip()
-    except (EOFError, KeyboardInterrupt):
-        print("\nПрервано пользователем")
-        return
+    print("Регистрация. Введите 'q' в поле логина для выхода.\n")
 
-    ok, msg = validate_registration(login, pwd, confirm)
-    print(ok)
-    print(msg)
+    while True:
+        try:
+            login = input("Логин: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nПрервано пользователем")
+            return
+
+        if login.lower() in ("q", "quit", "exit"):
+            print("Выход.")
+            return
+
+        try:
+            pwd     = input("Пароль: ").strip()
+            confirm = input("Подтверждение пароля: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nПрервано пользователем")
+            return
+
+        ok, msg = validate_registration(login, pwd, confirm)
+
+        print(ok)
+        print(msg)
+        print("-" * 40)
 
 
 if __name__ == "__main__":
