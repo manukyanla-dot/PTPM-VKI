@@ -1,5 +1,5 @@
 SPECIAL_CHARS = frozenset("!@#$%^&*")
-
+#hello
 
 def validate_password(password: str) -> bool:
     """
